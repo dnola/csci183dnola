@@ -1,0 +1,109 @@
+# David Nola
+# CSCI 183 HW1 OUTPUT
+
+> d <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt1.csv"))
+> head(d)
+  Age Gender Impressions Clicks Signed_In
+1  36      0           3      0         1
+2  73      1           3      0         1
+3  30      0           3      0         1
+4  49      1           3      0         1
+5  47      1          11      0         1
+6  47      0          11      1         1
+> d$a <- cut(d$Age, c(-Inf,0,18,24,34,44,54,64,Inf))
+> d$ctr <- d$Clicks/d$Impressions
+> d$b <- cut(d$ctr, c(-Inf,0,.2,.4,.6,.8,1,Inf))
+> head(d)
+  Age Gender Impressions Clicks Signed_In         a        ctr        b
+1  36      0           3      0         1   (34,44] 0.00000000 (-Inf,0]
+2  73      1           3      0         1 (64, Inf] 0.00000000 (-Inf,0]
+3  30      0           3      0         1   (24,34] 0.00000000 (-Inf,0]
+4  49      1           3      0         1   (44,54] 0.00000000 (-Inf,0]
+5  47      1          11      0         1   (44,54] 0.00000000 (-Inf,0]
+6  47      0          11      1         1   (44,54] 0.09090909  (0,0.2]
+> clicks_by_age <- tapply(d$Clicks, d$a, FUN=sum)
+> barplot(clicks_by_age,names.arg=rownames(clicks_by_age),main="Total Clicks by Age")
+> ctr_by_age <- tapply(d$ctr, d$a, FUN=mean, na.rm=TRUE)
+> barplot(ctr_by_age,names.arg=rownames(ctr_by_age), main="Avg CTR by Age")
+> ctr_by_gender <- tapply(d$ctr, d$Gender, FUN=mean, na.rm=TRUE)
+> head(ctr_by_gender)
+         0          1 
+0.02111027 0.01391852 
+> barplot(ctr_by_gender,names.arg=c("female","male"), main = "Avg CTR by Gender")
+> library("doBy")
+> stats <- function(x){c(length(x), mean(x),sd(x), min(x), max(x))}
+> summaryBy(Age~Gender, data=d, FUN=stats)
+  Gender Age.FUN1 Age.FUN2 Age.FUN3 Age.FUN4 Age.FUN5
+1      0   290176 22.90613 24.86394        0      108
+2      1   168265 40.82370 15.78050        7      107
+> summaryBy(Age~b, data=d, FUN=stats)
+          b Age.FUN1 Age.FUN2 Age.FUN3 Age.FUN4 Age.FUN5
+1  (-Inf,0]   415537 29.87735 23.22810        0      108
+2   (0,0.2]    27163 26.08177 26.83072        0      107
+3 (0.2,0.4]    10623 24.09912 27.10334        0      100
+4 (0.4,0.6]     1647 23.09047 26.45739        0       89
+5 (0.6,0.8]      106 16.09434 26.57981        0       94
+6   (0.8,1]      299 23.19732 25.98240        0       90
+7      <NA>     3066 29.26582 23.65992        0       97
+> summaryBy(Gender~b, data=d, FUN=mean)$b
+[1] (-Inf,0]  (0,0.2]   (0.2,0.4] (0.4,0.6] (0.6,0.8] (0.8,1]   <NA>     
+Levels: (-Inf,0] (0,0.2] (0.2,0.4] (0.4,0.6] (0.6,0.8] (0.8,1] (1, Inf]
+> d1 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt1.csv"))
+> d2 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt2.csv"))
+> d3 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt3.csv"))
+> d4 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt4.csv"))
+> d5 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt5.csv"))
+> d6 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt6.csv"))
+> d7 <- read.csv(url("http://stat.columbia.edu/~rachel/datasets/nyt7.csv"))
+> ds = list(d1,d2,d3,d4,d5,d6,d7)
+> head(ds[[1]])
+  Age Gender Impressions Clicks Signed_In
+1  36      0           3      0         1
+2  73      1           3      0         1
+3  30      0           3      0         1
+4  49      1           3      0         1
+5  47      1          11      0         1
+6  47      0          11      1         1
+> for (i in 1:7)
++ {
++ ds[[i]]$a <- cut(ds[[i]]$Age, c(-Inf,0,18,24,34,44,54,64,Inf))
++ ds[[i]]$ctr <- ds[[i]]$Clicks/ds[[i]]$Impressions
++ ds[[i]]$b <- cut(ds[[i]]$ctr, c(-Inf,0,.2,.4,.6,.8,1,Inf))
++ }
+> by_age <- summaryBy(Age~b, data=ds[[1]], FUN=mean)
+> by_age$day1 <- summaryBy(Age~b, data=ds[[1]], FUN=mean)$Age.mean # I DONT KNOW R WELL ENOUGH TO LOOP THIS
+> by_age$Age.mean<-NULL
+> by_age$day2 <- summaryBy(Age~b, data=ds[[2]], FUN=mean)$Age.mean
+> by_age$day3 <- summaryBy(Age~b, data=ds[[3]], FUN=mean)$Age.mean
+> by_age$day4 <- summaryBy(Age~b, data=ds[[4]], FUN=mean)$Age.mean
+> by_age$day5 <- summaryBy(Age~b, data=ds[[5]], FUN=mean)$Age.mean
+> by_age$day6 <- summaryBy(Age~b, data=ds[[6]], FUN=mean)$Age.mean
+> by_age$day7 <- summaryBy(Age~b, data=ds[[7]], FUN=mean)$Age.mean
+> print(by_age)
+          b     day1     day2     day3     day4     day5     day6     day7
+1  (-Inf,0] 29.87735 29.93244 29.87978 29.84052 29.84951 29.87359 29.94525
+2   (0,0.2] 26.08177 25.49993 25.60987 25.72189 25.54716 25.59757 25.58227
+3 (0.2,0.4] 24.09912 24.46015 24.38920 23.99572 24.13196 24.40080 24.03290
+4 (0.4,0.6] 23.09047 23.90250 24.01941 23.49392 23.24574 22.98761 24.12078
+5 (0.6,0.8] 16.09434 17.83333 13.75510 20.73034 22.05405 15.42405 20.55102
+6   (0.8,1] 23.19732 23.57746 22.64430 23.29195 23.54751 25.44465 26.95390
+7      <NA> 29.26582 29.13384 29.48850 29.80461 29.69142 29.02406 29.13500
+> plot( c(1,2,3,4,5,6,7), data.matrix(by_age[6,2:8]), main="Average age of heavy clickers by day")
+> by_gender <- summaryBy(Gender~b, data=ds[[1]], FUN=mean)
+> by_gender$day1 <- summaryBy(Gender~b, data=ds[[1]], FUN=mean)$Gender.mean # I DONT KNOW R WELL ENOUGH TO LOOP THIS
+> by_gender$Gender.mean<-NULL
+> by_gender$day2 <- summaryBy(Gender~b, data=ds[[2]], FUN=mean)$Gender.mean
+> by_gender$day3 <- summaryBy(Gender~b, data=ds[[3]], FUN=mean)$Gender.mean
+> by_gender$day4 <- summaryBy(Gender~b, data=ds[[4]], FUN=mean)$Gender.mean
+> by_gender$day5 <- summaryBy(Gender~b, data=ds[[5]], FUN=mean)$Gender.mean
+> by_gender$day6 <- summaryBy(Gender~b, data=ds[[6]], FUN=mean)$Gender.mean
+> by_gender$day7 <- summaryBy(Gender~b, data=ds[[7]], FUN=mean)$Gender.mean
+> print(by_gender)
+          b      day1      day2      day3      day4      day5      day6      day7
+1  (-Inf,0] 0.3750400 0.3822387 0.3752013 0.3774372 0.3767566 0.3629637 0.3601583
+2   (0,0.2] 0.2939292 0.2963211 0.2871811 0.2932302 0.2836775 0.2797788 0.2770384
+3 (0.2,0.4] 0.2622611 0.2845521 0.2659277 0.2715412 0.2739301 0.2613093 0.2530257
+4 (0.4,0.6] 0.2592593 0.2718750 0.2595512 0.2680742 0.2666667 0.2495446 0.2697121
+5 (0.6,0.8] 0.1981132 0.1481481 0.1836735 0.1910112 0.2432432 0.1582278 0.2653061
+6   (0.8,1] 0.2842809 0.2992958 0.2617450 0.2885906 0.2579186 0.2859779 0.2446809
+7      <NA> 0.3649706 0.3871073 0.3604535 0.3744912 0.3584830 0.3539996 0.3551913
